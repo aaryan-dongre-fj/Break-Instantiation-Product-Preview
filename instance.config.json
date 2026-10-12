@@ -1,0 +1,11 @@
+{
+  "productName": "Company X",
+  "packageName": "break-generic-product-preview",
+  "title": "",
+  "description": "",
+  "logo": "",
+  "favicon": "/favicon.svg",
+  "devPort": 3001,
+  "appUrl": "",
+  "apiBaseUrl": "http://127.0.0.1:8000"
+}
