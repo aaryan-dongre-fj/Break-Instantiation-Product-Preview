@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 
 import type { StaffSession } from "./flowTool";
 import { apiBaseUrl, portalOriginFor } from "./instance";
-import { companyApiOrigin } from "./look";
+import { companyApiOrigin, requestCompanyHeaders } from "./look";
 
 export type PortalResult<T> =
   | { ok: true; status: number; data: T }
@@ -73,6 +73,7 @@ async function postJson(path: string, body: unknown, cookie?: string, csrf?: str
   return fetch(`${base}${path}`, {
     method: "POST",
     headers: {
+      ...(await requestCompanyHeaders()),
       "Content-Type": "application/json",
       Accept: "application/json",
       Origin: origin,
@@ -180,6 +181,7 @@ async function authed(
     response = await fetch(`${base}${path}`, {
       method,
       headers: {
+        ...(await requestCompanyHeaders()),
         Accept: "application/json",
         "Content-Type": "application/json",
         Origin: origin,

@@ -11,7 +11,7 @@
 import { headers } from "next/headers";
 
 import { apiBaseUrl, portalOriginFor } from "./instance";
-import { companyApiOrigin } from "./look";
+import { companyApiOrigin, requestCompanyHeaders } from "./look";
 
 export function staffApiBase() {
   return apiBaseUrl();
@@ -179,6 +179,7 @@ export async function staffLogin(
     response = await fetch(`${base}/api/staff/auth/login/`, {
       method: "POST",
       headers: {
+        ...(await requestCompanyHeaders()),
         "Content-Type": "application/json",
         Accept: "application/json",
         Origin: origin,
@@ -268,6 +269,7 @@ async function staffRequest<T>(
     response = await fetch(`${base}${FLOW_TOOL_PREFIX}/${path}`, {
       method,
       headers: {
+        ...(await requestCompanyHeaders()),
         "Content-Type": "application/json",
         Accept: "application/json",
         // POSTs need this. GETs ignore it. Same cookies as preview/.
