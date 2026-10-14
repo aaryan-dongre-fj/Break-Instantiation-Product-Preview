@@ -93,7 +93,7 @@ function normalizePreviewState(payload: unknown): PreviewState {
 }
 
 const SHELL =
-  "min-h-screen pt-[88px] w-full m-0 bg-primary-background text-primary-text flex flex-col relative overflow-y-auto";
+  "min-h-screen pt-[72px] w-full m-0 bg-primary-background text-primary-text flex flex-col relative overflow-y-auto";
 const INNER =
   "flex-1 flex flex-col justify-center py-8 px-6 lg:px-12 xl:px-16 2xl:px-20";
 

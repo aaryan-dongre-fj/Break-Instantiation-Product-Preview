@@ -1,5 +1,8 @@
+import { headers } from "next/headers";
+
 import type { StaffSession } from "./flowTool";
 import { STAFF_API_BASE } from "./flowTool";
+import { companyApiOrigin } from "./look";
 
 export type PortalResult<T> =
   | { ok: true; status: number; data: T }
@@ -46,14 +49,24 @@ function errorDetail(payload: unknown, fallback: string) {
   return fallback;
 }
 
+async function apiBase() {
+  try {
+    const host = (await headers()).get("host");
+    return companyApiOrigin(host) ?? STAFF_API_BASE;
+  } catch {
+    return STAFF_API_BASE;
+  }
+}
+
 async function postJson(path: string, body: unknown, cookie?: string, csrf?: string) {
-  return fetch(`${STAFF_API_BASE}${path}`, {
+  const base = await apiBase();
+  return fetch(`${base}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      Origin: STAFF_API_BASE,
-      Referer: `${STAFF_API_BASE}/`,
+      Origin: base,
+      Referer: `${base}/`,
       ...(cookie ? { Cookie: cookie } : {}),
       ...(csrf ? { "X-CSRFToken": csrf } : {}),
     },
@@ -87,7 +100,7 @@ export async function requestMagicLogin(email: string): Promise<PortalResult<{ d
     return {
       ok: false,
       status: 503,
-      error: `Couldn't reach ${STAFF_API_BASE}.`,
+      error: "Couldn't reach the company API.",
     };
   }
 
@@ -116,7 +129,7 @@ async function redeem(path: string, token: string): Promise<PortalResult<Redeeme
     return {
       ok: false,
       status: 503,
-      error: `Couldn't reach ${STAFF_API_BASE}.`,
+      error: "Couldn't reach the company API.",
     };
   }
 
@@ -143,6 +156,89 @@ export function redeemInvite(token: string) {
 
 export function redeemMagicLogin(token: string) {
   return redeem("/api/clients/auth/magic-login/redeem/", token);
+}
+
+async function authed(
+  path: string,
+  staff: StaffSession,
+  method: "GET" | "POST" = "GET",
+): Promise<PortalResult<unknown>> {
+  const base = await apiBase();
+  let response: Response;
+  try {
+    response = await fetch(`${base}${path}`, {
+      method,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Origin: base,
+        Referer: `${base}/`,
+        Cookie: `client_session=${staff.session}; csrftoken=${staff.csrf}`,
+        "X-CSRFToken": staff.csrf,
+      },
+      cache: "no-store",
+    });
+  } catch {
+    return { ok: false, status: 503, error: "Couldn't reach the company API." };
+  }
+
+  const payload = await readBody(response);
+  if (!response.ok) {
+    return {
+      ok: false,
+      status: response.status,
+      error: errorDetail(payload, `The API returned ${response.status}.`),
+    };
+  }
+  return { ok: true, status: response.status, data: payload };
+}
+
+export type ConsentState =
+  | { state: "granted" }
+  | { state: "missing" }
+  | { state: "error"; error: string };
+
+/** `404` means the client still has to grant consent. */
+export async function getConsentState(staff: StaffSession): Promise<ConsentState> {
+  const result = await authed("/api/portal/assessment/consent/", staff);
+  if (result.ok) return { state: "granted" };
+  if (result.status === 404) return { state: "missing" };
+  return { state: "error", error: result.error };
+}
+
+export type ConsentTemplate = { id: string; version: string; text: string };
+
+export async function getConsentTemplate(
+  staff: StaffSession,
+): Promise<PortalResult<ConsentTemplate>> {
+  const result = await authed("/api/portal/assessment/consent/template/", staff);
+  if (!result.ok) {
+    if (result.status === 404) {
+      return {
+        ok: false,
+        status: 404,
+        error: "Consent wording hasn't been published yet.",
+      };
+    }
+    return result;
+  }
+  const data = result.data as Partial<ConsentTemplate> | null;
+  if (!data || typeof data.text !== "string" || !data.text.trim()) {
+    return { ok: false, status: 502, error: "Consent wording came back empty." };
+  }
+  return {
+    ok: true,
+    status: result.status,
+    data: {
+      id: String(data.id ?? ""),
+      version: String(data.version ?? ""),
+      text: data.text,
+    },
+  };
+}
+
+export function grantConsent(staff: StaffSession) {
+  return authed("/api/portal/assessment/consent/", staff, "POST");
 }
 
 export async function revokeClientSession(staff: StaffSession) {

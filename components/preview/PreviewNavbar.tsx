@@ -3,11 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IoIosArrowDown } from "react-icons/io";
-import { motion } from "framer-motion";
+import { LogOut } from "lucide-react";
 import BrandMark from "@/components/BrandMark";
-import { Button } from "@/components/ui/button";
-import { instance } from "@/utils/instance";
 
 export default function PreviewNavbar({
   email,
@@ -17,7 +14,6 @@ export default function PreviewNavbar({
   context?: string;
 }) {
   const router = useRouter();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const signOut = async () => {
@@ -28,88 +24,37 @@ export default function PreviewNavbar({
   };
 
   return (
-    <nav className="absolute top-0 left-0 right-0 bg-transparent z-50 h-[88px]">
-      <div
-        className="absolute inset-0 backdrop-blur-[2px] pointer-events-none"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, black 0%, black 40%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black 0%, black 40%, transparent 100%)",
-        }}
-      ></div>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="flex items-center justify-between px-6 lg:px-12 xl:px-16 2xl:px-20 h-full z-10"
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="flex items-center gap-4 z-10 min-w-0"
-        >
+    <nav className="absolute top-0 left-0 right-0 z-50 h-[72px] border-b border-[var(--ej-border)] bg-primary-background/95">
+      <div className="flex h-full items-center justify-between gap-4 px-6 lg:px-12">
+        <div className="flex min-w-0 items-center gap-4">
           <Link href="/products" className="shrink-0">
             <BrandMark />
           </Link>
           {context ? (
-            <span className="hidden sm:block truncate text-sm text-primary-text/50">
-              <span className="mr-2 text-primary-text/25">/</span>
+            <span className="hidden truncate text-sm font-medium text-[var(--ej-text-muted)] sm:block">
+              <span className="mr-2 text-[var(--ej-text-ghost)]">/</span>
               {context}
             </span>
           ) : null}
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10"
-        >
-          <Button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 bg-transparent hover:bg-transparent hover:cursor-pointer p-2 touch-manipulation shadow-none"
+        <div className="flex shrink-0 items-center gap-3">
+          {email ? (
+            <span className="hidden max-w-[16rem] truncate text-sm font-medium text-[var(--ej-text-muted)] sm:block">
+              {email}
+            </span>
+          ) : null}
+          <button
+            type="button"
+            onClick={signOut}
+            disabled={isSigningOut}
+            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border-2 border-[var(--ej-border-strong)] bg-surface px-5 text-[13.5px] font-bold text-[var(--ej-text-soft)] transition-colors hover:border-secondary-background hover:text-secondary-background disabled:opacity-60"
           >
-            <div className="flex items-center gap-2 border border-primary-text/20 rounded-full px-3 py-1.5">
-              <div className="flex items-center justify-center bg-secondary-background rounded-full w-8 h-8">
-                <span className="text-primary-text text-sm font-medium uppercase">
-                  {email?.[0] ?? "S"}
-                </span>
-              </div>
-              <div className="hidden sm:flex sm:flex-col sm:items-start">
-                <span className="text-primary-text text-sm">{instance.productName}</span>
-                <span className="text-primary-text/60 text-xs">
-                  {email ?? "Signed in"}
-                </span>
-              </div>
-              <div className="text-primary-text">
-                <IoIosArrowDown />
-              </div>
-            </div>
-          </Button>
-          {isDropdownOpen && (
-            <div className="absolute right-0 mt-4 mr-4 w-[300px] rounded-md shadow-lg bg-primary-background ring-1 ring-black ring-opacity-5 border border-primary-text/10">
-              <div className="py-1">
-                <Link
-                  href="/products"
-                  className="cursor-pointer block w-[300px] px-4 py-2 text-sm text-primary-text hover:bg-secondary-background/20 text-left border-b border-primary-text/10"
-                  onClick={() => setIsDropdownOpen(false)}
-                >
-                  All products
-                </Link>
-                <button
-                  onClick={signOut}
-                  disabled={isSigningOut}
-                  className="cursor-pointer block w-[300px] px-4 py-2 text-sm text-primary-text hover:bg-secondary-background/20 text-left disabled:opacity-50"
-                >
-                  {isSigningOut ? "Logging out..." : "Logout"}
-                </button>
-              </div>
-            </div>
-          )}
-        </motion.div>
-      </motion.div>
+            <LogOut aria-hidden className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+            {isSigningOut ? "Signing out…" : "Sign out"}
+          </button>
+        </div>
+      </div>
     </nav>
   );
 }

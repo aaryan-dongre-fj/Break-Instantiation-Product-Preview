@@ -20,11 +20,20 @@
    * - bg-accent or text-accent (#4DF5F5) - Accent color (use sparingly, ~5%)
    * - bg-neutral or text-neutral (#BFB9B5) - Neutral UI elements
    */
-  --color-primary-background: var(--predmind-primary-background);
-  --color-secondary-background: var(--predmind-secondary-background);
-  --color-primary-text: var(--predmind-primary-text);
-  --color-accent: var(--predmind-accent);
-  --color-neutral: var(--predmind-neutral);
+  --color-primary-background: var(--ej-background);
+  --color-secondary-background: var(--ej-amber);
+  --color-primary-text: var(--ej-ink);
+  --color-accent: var(--ej-amber);
+  --color-neutral: var(--ej-neutral);
+  --color-surface: var(--ej-surface);
+  --color-status-high: var(--ej-status-high);
+  --color-status-medium: var(--ej-status-medium);
+  --color-status-low: var(--ej-status-low);
+  --radius-card: 1.375rem;
+  --radius-button: 1.125rem;
+  --radius-control: 0.75rem;
+  --shadow-card: 0 1px 2px rgba(26, 22, 19, 0.04), 0 8px 28px rgba(26, 22, 19, 0.08);
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -61,18 +70,27 @@
 
 :root {
   --radius: 0.625rem;
-  /* Custom Color Palette - Base color definitions
-   * Primary background: #FFFEF8
-   * Secondary background: #CCA077
-   * Primary Text: #070401
-   * Accent color: #4DF5F5 (use sparingly, ~5% or less)
-   * Neutral UI elements: #BFB9B5
-   */
-  --predmind-primary-background: #fffef8;
-  --predmind-secondary-background: #cca077;
-  --predmind-primary-text: #070401;
-  --predmind-accent: #4df5f5;
-  --predmind-neutral: #bfb9b5;
+  color-scheme: light;
+  --ej-background: #fbf5ec;
+  --ej-ink: #1a1613;
+  --ej-amber: #c99a6e;
+  --ej-neutral: #bfb9b5;
+  --ej-surface: #ffffff;
+  --ej-status-low: #2f7d4f;
+  --ej-status-medium: #b7791f;
+  --ej-status-high: #b54a3c;
+  --ej-text-soft: rgba(26, 22, 19, 0.78);
+  --ej-text-muted: rgba(26, 22, 19, 0.68);
+  --ej-text-ghost: rgba(26, 22, 19, 0.6);
+  --ej-border: rgba(26, 22, 19, 0.11);
+  --ej-border-strong: rgba(26, 22, 19, 0.2);
+  --ej-border-active: rgba(201, 154, 110, 0.45);
+  /* Kept so older report styles that still read these variables follow the client palette. */
+  --predmind-primary-background: var(--ej-background);
+  --predmind-secondary-background: var(--ej-amber);
+  --predmind-primary-text: var(--ej-ink);
+  --predmind-accent: var(--ej-amber);
+  --predmind-neutral: var(--ej-neutral);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -152,6 +170,59 @@
     font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont,
       "Segoe UI", sans-serif;
   }
+}
+
+@keyframes dossier-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dossier-rise {
+  animation: dossier-rise 0.32s var(--ease-brand) both;
+}
+
+.dossier-rise-delay-1 {
+  animation-delay: 40ms;
+}
+
+.dossier-ambient {
+  background-color: var(--ej-background);
+  background-image: radial-gradient(
+    circle at 18% 0%,
+    rgba(201, 154, 110, 0.1) 0%,
+    transparent 42%
+  );
+}
+
+.dossier-card {
+  background: var(--ej-surface);
+  border: 1px solid var(--ej-border);
+  box-shadow: var(--shadow-card);
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+label[for] {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ej-amber);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--ej-amber);
+  box-shadow: 0 0 0 3px rgba(201, 154, 110, 0.16);
 }
 
 /* react-phone-number-input: match brand focus color */

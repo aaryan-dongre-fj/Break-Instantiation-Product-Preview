@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { Inter, Source_Serif_4 } from "next/font/google";
-import { instance } from "@/utils/instance";
+import { LookProvider } from "@/components/LookProvider";
+import { loadLook } from "@/utils/look";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,27 +19,41 @@ const sourceSerif = Source_Serif_4({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: instance.title,
-  description: instance.description,
-  icons: {
-    icon: instance.favicon,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const look = await loadLook();
+  return {
+    title: look.title,
+    description: look.description,
+    icons: {
+      icon: look.favicon,
+    },
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const look = await loadLook();
   return (
     <html
       lang="en"
       className={`${inter.variable} ${sourceSerif.variable}`}
+      style={
+        {
+          "--primary": look.colors.primary,
+          "--primary-foreground": look.colors.primaryForeground,
+          "--ej-amber": look.colors.primary,
+          "--ej-border-active": `color-mix(in srgb, ${look.colors.primary} 45%, transparent)`,
+          "--brand-hover": look.colors.primaryHover,
+          "--ring": look.colors.primary,
+        } as React.CSSProperties
+      }
       suppressHydrationWarning
     >
       <body suppressHydrationWarning className="antialiased">
-        {children}
+        <LookProvider look={look}>{children}</LookProvider>
         <Toaster />
       </body>
     </html>

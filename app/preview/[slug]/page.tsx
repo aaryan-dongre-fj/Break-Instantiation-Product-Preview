@@ -5,6 +5,7 @@ import { getVersions } from "@/utils/flowTool";
 import { loadPreviewProduct } from "@/utils/loadPreviewProduct";
 import { lineageForProduct } from "@/utils/productLine";
 import { instance } from "@/utils/instance";
+import { redirectIfConsentMissing } from "@/utils/requireConsent";
 import { getStaffSession } from "@/utils/staffSession";
 
 export const metadata = {
@@ -19,6 +20,7 @@ export default async function PreviewPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  await redirectIfConsentMissing();
   const loaded = await loadPreviewProduct(slug);
 
   if (!loaded.ok) {

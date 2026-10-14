@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import EditorialHeading from "./EditorialHeading";
 import type { FlowToolProduct } from "@/utils/flowTool";
 import { slugForProduct } from "@/utils/productSlug";
 
@@ -83,9 +82,7 @@ function ProductCard({
     <>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-2">
-          <h2 className="text-2xl leading-tight tracking-tight">
-            <EditorialHeading text={product.name} />
-          </h2>
+          <h2 className="text-xl font-bold leading-tight tracking-tight">{product.name}</h2>
           <p className="font-mono text-xs tracking-wide text-primary-text/40">
             {product.code}
           </p>
@@ -121,7 +118,7 @@ function ProductCard({
 
   if (!published) {
     return (
-      <div className="h-full cursor-not-allowed rounded-2xl border border-dashed border-neutral/60 bg-transparent p-6 opacity-60">
+      <div className="h-full cursor-not-allowed rounded-card border border-dashed border-[var(--ej-border-strong)] bg-transparent p-6 opacity-60">
         {body}
       </div>
     );
@@ -130,7 +127,7 @@ function ProductCard({
   return (
     <Link
       href={`/preview/${slug}`}
-      className="group block h-full rounded-2xl border border-primary-text/10 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-secondary-background hover:shadow-md"
+      className="group dossier-card block h-full rounded-card p-6 transition-colors hover:border-[var(--ej-border-active)]"
     >
       {body}
     </Link>

@@ -3,8 +3,8 @@ import { createContext, useContext, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IoIosArrowDown } from "react-icons/io";
+import { useLook } from "@/components/LookProvider";
 import { Button } from "@/components/ui/button";
-import { instance } from "@/utils/instance";
 
 /**
  * The signed-in email lives in a cookie on this origin and is handed down
@@ -14,6 +14,7 @@ export const StaffEmailContext = createContext<string | null>(null);
 
 export default function ProfileMenu() {
   const email = useContext(StaffEmailContext);
+  const look = useLook();
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -41,7 +42,7 @@ export default function ProfileMenu() {
           </div>
           <div className="hidden md:flex md:flex-col md:items-start md:min-w-0">
             <span className="text-primary-text text-sm leading-tight truncate max-w-[180px] lg:max-w-[220px]">
-              {instance.productName}
+              {look.name}
             </span>
             <span className="text-primary-text/60 text-xs leading-tight truncate max-w-[180px] lg:max-w-[220px]">
               {email || "Signed in"}

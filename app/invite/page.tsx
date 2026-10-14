@@ -1,10 +1,12 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import RedeemLink from "@/components/preview/RedeemLink";
-import { instance } from "@/utils/instance";
+import { loadLook } from "@/utils/look";
 
-export const metadata = {
-  title: `Invitation · ${instance.productName}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const look = await loadLook();
+  return { title: `Invitation · ${look.name}` };
+}
 
 export default function InvitePage() {
   return (

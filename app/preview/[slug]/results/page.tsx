@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import ReportExperience from "@/components/preview/ReportExperience";
 import { loadPreviewProduct } from "@/utils/loadPreviewProduct";
 import { instance } from "@/utils/instance";
+import { redirectIfConsentMissing } from "@/utils/requireConsent";
 
 export const metadata = {
   title: `Results · ${instance.productName}`,
@@ -34,6 +35,7 @@ export default async function ResultsPage({
 }) {
   const { slug } = await params;
   const search = await searchParams;
+  await redirectIfConsentMissing();
   const loaded = await loadPreviewProduct(slug, resultsSuffix(search));
 
   if (!loaded.ok) redirect("/products");

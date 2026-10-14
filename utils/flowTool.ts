@@ -8,11 +8,24 @@
  * See FLOW_TOOL_PREVIEW_API.md.
  */
 
+import { headers } from "next/headers";
+
 import { instance } from "./instance";
+import { companyApiOrigin } from "./look";
 
 export const STAFF_API_BASE = (
   process.env.STAFF_API_BASE ?? instance.apiBaseUrl
 ).replace(/\/+$/, "");
+
+/** Company hosts (`ej.localhost`) talk to that child's API. `localhost` stays on the public base. */
+async function requestApiBase() {
+  try {
+    const host = (await headers()).get("host");
+    return companyApiOrigin(host) ?? STAFF_API_BASE;
+  } catch {
+    return STAFF_API_BASE;
+  }
+}
 
 const FLOW_TOOL_PREFIX = "/api/staff/flow-tool";
 
@@ -150,15 +163,16 @@ export async function staffLogin(
   email: string,
   password: string,
 ): Promise<UpstreamResult<StaffSession>> {
+  const base = await requestApiBase();
   let response: Response;
   try {
-    response = await fetch(`${STAFF_API_BASE}/api/staff/auth/login/`, {
+    response = await fetch(`${base}/api/staff/auth/login/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Origin: STAFF_API_BASE,
-        Referer: `${STAFF_API_BASE}/`,
+        Origin: base,
+        Referer: `${base}/`,
       },
       body: JSON.stringify({ email, password }),
       cache: "no-store",
@@ -167,7 +181,7 @@ export async function staffLogin(
     return {
       ok: false,
       status: 503,
-      error: `Couldn't reach ${STAFF_API_BASE}. Check the host and your connection.`,
+      error: `Couldn't reach ${base}. Check the host and your connection.`,
     };
   }
 
@@ -236,10 +250,11 @@ async function staffRequest<T>(
   } = {},
 ): Promise<UpstreamResult<T>> {
   const method = init.method ?? "GET";
+  const base = await requestApiBase();
 
   let response: Response;
   try {
-    response = await fetch(`${STAFF_API_BASE}${FLOW_TOOL_PREFIX}/${path}`, {
+    response = await fetch(`${base}${FLOW_TOOL_PREFIX}/${path}`, {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -249,8 +264,8 @@ async function staffRequest<T>(
         Cookie: `${UPSTREAM_SESSION_COOKIE}=${staff.session}; ${UPSTREAM_CSRF_COOKIE}=${staff.csrf}`,
         // Server-to-server, so we present the API's own origin and skip the
         // CSRF_TRUSTED_ORIGINS entry this app doesn't have yet.
-        Origin: STAFF_API_BASE,
-        Referer: `${STAFF_API_BASE}/`,
+        Origin: base,
+        Referer: `${base}/`,
         ...init.headers,
       },
       body: init.body === undefined ? undefined : JSON.stringify(init.body),
@@ -269,7 +284,7 @@ async function staffRequest<T>(
     return {
       ok: false,
       status: 503,
-      error: `Couldn't reach ${STAFF_API_BASE}. Check the host and your connection.`,
+      error: `Couldn't reach ${base}. Check the host and your connection.`,
     };
   }
 

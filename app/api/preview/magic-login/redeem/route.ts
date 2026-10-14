@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { redeemMagicLogin } from "@/utils/clientPortal";
+import { getConsentState, redeemMagicLogin } from "@/utils/clientPortal";
 import { setStaffSession } from "@/utils/staffSession";
 
 export async function POST(request: Request) {
@@ -21,5 +21,7 @@ export async function POST(request: Request) {
   }
 
   await setStaffSession(result.data, result.data.email);
-  return NextResponse.json({ email: result.data.email });
+  const consent = await getConsentState(result.data);
+  const next = consent.state === "missing" ? "/consent" : "/products";
+  return NextResponse.json({ email: result.data.email, next });
 }

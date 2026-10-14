@@ -40,7 +40,7 @@ export default function RedeemLink({
           setError(payload.error ?? "This link is invalid or has expired.");
           return;
         }
-        router.replace("/products");
+        router.replace(typeof payload.next === "string" ? payload.next : "/products");
         router.refresh();
       })
       .catch(() => {
@@ -55,27 +55,33 @@ export default function RedeemLink({
   }, [kind, router, token]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-primary-background px-6 text-primary-text">
-      <BrandMark className="mb-10" />
-      {error ? (
-        <div className="w-full max-w-md text-center">
-          <h1 className="mb-3 text-3xl font-medium tracking-tight">
-            This link didn&apos;t work
-          </h1>
-          <p className="mb-8 text-base leading-relaxed text-primary-text/60">{error}</p>
-          <Link
-            href="/login"
-            className="text-sm font-medium underline underline-offset-4"
-          >
-            Request a new sign-in link
-          </Link>
-        </div>
-      ) : (
-        <p className="flex items-center gap-2 text-base text-primary-text/60">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Signing you in…
-        </p>
-      )}
-    </div>
+    <main className="dossier-ambient flex min-h-screen flex-col items-center justify-center px-5 py-12 text-primary-text">
+      <div className="dossier-rise mb-9">
+        <BrandMark />
+      </div>
+      <div className="dossier-card w-full max-w-[26rem] rounded-card p-7 text-center sm:p-8">
+        {error ? (
+          <>
+            <h1 className="mb-3 text-[1.6rem] font-bold tracking-tight">
+              This link didn&apos;t work
+            </h1>
+            <p className="mb-6 text-[14px] font-medium leading-relaxed text-[var(--ej-text-soft)]">
+              {error}
+            </p>
+            <Link
+              href="/login"
+              className="text-[13.5px] font-bold text-secondary-background hover:underline"
+            >
+              Request a new sign-in link
+            </Link>
+          </>
+        ) : (
+          <p className="flex items-center justify-center gap-2 text-[14px] font-medium text-[var(--ej-text-soft)]">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Signing you in…
+          </p>
+        )}
+      </div>
+    </main>
   );
 }

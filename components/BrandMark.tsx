@@ -1,4 +1,6 @@
-import { instance } from "@/utils/instance";
+"use client";
+
+import { useLook } from "@/components/LookProvider";
 
 export default function BrandMark({
   className = "",
@@ -7,14 +9,11 @@ export default function BrandMark({
   className?: string;
   light?: boolean;
 }) {
-  if (instance.logo) {
+  const { logo, name } = useLook();
+  if (logo) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={instance.logo}
-        alt={instance.productName}
-        className={`h-8 w-auto ${className}`}
-      />
+      <img src={logo} alt={name} className={`h-8 w-auto ${className}`} />
     );
   }
 
@@ -24,7 +23,7 @@ export default function BrandMark({
         light ? "text-white" : "text-primary-text"
       } ${className}`}
     >
-      {instance.productName}
+      {name}
     </span>
   );
 }

@@ -1,8 +1,8 @@
 # Company X
 
-Customer landing page. An invitation or magic-login email opens this app, creates a session, and sends the customer to their products.
+Customer landing page. An invitation or magic-login email opens this app, creates a session, and sends the customer through consent before their products.
 
-Company name, logo, and favicon come from `instance.config.json`. The questionnaire, report, and chapter layout stay as they are. A new company is a copy of this app with that file filled in, not a restyle.
+On a company host such as `http://ej.localhost:3001` or `http://break.localhost:3001`, the name, logo, favicon, and colors come from that company's `GET /api/look/`. `localhost` is the public control store and has no company look, so it falls back to `instance.config.json`. The questionnaire and report layout stay as they are; the company color replaces the accent.
 
 ## One config
 
@@ -51,15 +51,18 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001). The port comes from `instance.config.json`.
+Open [http://ej.localhost:3001](http://ej.localhost:3001) or [http://break.localhost:3001](http://break.localhost:3001) for a company. [http://localhost:3001](http://localhost:3001) is the fallback look. The port comes from `instance.config.json`.
+
+The local API seeds those two companies, plus the consent wording, with `python manage.py seed_local_children`. The text is the BVI consent screen, with the company name filled in, stored as an active `ConsentTemplate` in each child.
 
 The app is pointed at the generic API. Questionnaire, scoring, video, and report calls stay in place even where the generic API does not implement them yet. Those screens show an error until the endpoints exist.
 
 | Path | What it does |
 |---|---|
 | `/login` | Asks for an email and requests a magic-login link |
-| `/invite?token=` | Redeems an invitation and opens `/products` |
-| `/magic-login?token=` | Redeems a sign-in link and opens `/products` |
+| `/invite?token=` | Redeems an invitation. First sign-in opens `/consent`, then `/products` |
+| `/magic-login?token=` | Redeems a sign-in link. Missing consent opens `/consent` |
+| `/consent` | Shows the active consent wording from `GET /api/portal/assessment/consent/template/` and records a grant |
 | `/products` | Product list from the flow-tool API |
 | `/preview/[slug]` | Questionnaire walk, results, and report |
 
