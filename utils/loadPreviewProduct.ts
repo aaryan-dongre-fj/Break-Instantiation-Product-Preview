@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getProducts, type FlowToolProduct } from "@/utils/flowTool";
 import { resolvePreviewProduct } from "@/utils/productSlug";
 import { getStaffEmail, getStaffSession } from "@/utils/staffSession";
+import { requestCompanyPath } from "@/utils/look";
 
 export type PreviewLoad =
   | {
@@ -23,19 +24,19 @@ export async function loadPreviewProduct(
   pathAfterParam = ""
 ): Promise<PreviewLoad> {
   const staff = await getStaffSession();
-  if (!staff) redirect("/login");
+  if (!staff) redirect(await requestCompanyPath("/login"));
 
   const email = await getStaffEmail();
   const products = await getProducts(staff);
 
-  if (!products.ok && products.status === 401) redirect("/login");
+  if (!products.ok && products.status === 401) redirect(await requestCompanyPath("/login"));
   if (!products.ok) return { ok: false, error: products.error, email };
 
   const resolved = resolvePreviewProduct(products.data, param);
   if (!resolved) notFound();
 
   if (resolved.fromVersionId || resolved.canonicalSlug !== param) {
-    redirect(`/preview/${resolved.canonicalSlug}${pathAfterParam}`);
+    redirect(await requestCompanyPath(`/preview/${resolved.canonicalSlug}${pathAfterParam}`));
   }
 
   if (!resolved.product.active_version_id) {

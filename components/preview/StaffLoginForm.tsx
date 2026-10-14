@@ -6,6 +6,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { withCompany } from "@/utils/company";
 
 export default function StaffLoginForm() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function StaffLoginForm() {
     setError(null);
 
     try {
-      const response = await fetch("/api/preview/login", {
+      const response = await fetch(withCompany("/api/preview/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email.trim(), password: form.password }),
@@ -36,7 +37,7 @@ export default function StaffLoginForm() {
         return;
       }
 
-      router.replace("/products");
+      router.replace(withCompany("/products"));
       router.refresh();
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");

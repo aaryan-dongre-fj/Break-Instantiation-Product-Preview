@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import BrandMark from "@/components/BrandMark";
+import { useCompanyHref } from "@/components/CompanyProvider";
 
 export default function RedeemLink({
   kind,
@@ -12,6 +13,7 @@ export default function RedeemLink({
   kind: "invite" | "magic-login";
 }) {
   const router = useRouter();
+  const companyHref = useCompanyHref();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [error, setError] = useState<string | null>(null);
@@ -25,8 +27,8 @@ export default function RedeemLink({
     let cancelled = false;
     const path =
       kind === "invite"
-        ? "/api/preview/invite/redeem"
-        : "/api/preview/magic-login/redeem";
+        ? companyHref("/api/preview/invite/redeem")
+        : companyHref("/api/preview/magic-login/redeem");
 
     fetch(path, {
       method: "POST",
@@ -40,7 +42,7 @@ export default function RedeemLink({
           setError(payload.error ?? "This link is invalid or has expired.");
           return;
         }
-        router.replace(typeof payload.next === "string" ? payload.next : "/products");
+        router.replace(companyHref(typeof payload.next === "string" ? payload.next : "/products"));
         router.refresh();
       })
       .catch(() => {
@@ -52,7 +54,7 @@ export default function RedeemLink({
     return () => {
       cancelled = true;
     };
-  }, [kind, router, token]);
+  }, [companyHref, kind, router, token]);
 
   return (
     <main className="dossier-ambient flex min-h-screen flex-col items-center justify-center px-5 py-12 text-primary-text">
@@ -69,7 +71,7 @@ export default function RedeemLink({
               {error}
             </p>
             <Link
-              href="/login"
+              href={companyHref("/login")}
               className="text-[13.5px] font-bold text-secondary-background hover:underline"
             >
               Request a new sign-in link

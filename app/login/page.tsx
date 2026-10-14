@@ -4,6 +4,7 @@ import BrandMark from "@/components/BrandMark";
 import MagicLinkForm from "@/components/preview/MagicLinkForm";
 import { loadLook } from "@/utils/look";
 import { getStaffSession } from "@/utils/staffSession";
+import { requestCompanyPath } from "@/utils/look";
 
 export async function generateMetadata(): Promise<Metadata> {
   const look = await loadLook();
@@ -12,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LoginPage() {
   if (await getStaffSession()) {
-    redirect("/products");
+    redirect(await requestCompanyPath("/products"));
   }
 
   return (

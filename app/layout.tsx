@@ -3,7 +3,8 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { Inter, Source_Serif_4 } from "next/font/google";
 import { LookProvider } from "@/components/LookProvider";
-import { loadLook } from "@/utils/look";
+import { CompanyProvider } from "@/components/CompanyProvider";
+import { loadLook, requestCompany } from "@/utils/look";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,6 +37,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const look = await loadLook();
+  const company = await requestCompany();
   return (
     <html
       lang="en"
@@ -53,7 +55,9 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body suppressHydrationWarning className="antialiased">
-        <LookProvider look={look}>{children}</LookProvider>
+        <CompanyProvider company={company}>
+          <LookProvider look={look}>{children}</LookProvider>
+        </CompanyProvider>
         <Toaster />
       </body>
     </html>

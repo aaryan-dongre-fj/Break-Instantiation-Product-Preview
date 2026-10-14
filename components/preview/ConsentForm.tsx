@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { withCompany } from "@/utils/company";
 
 function paragraphs(text: string) {
   return text
@@ -22,13 +23,13 @@ export default function ConsentForm({ text }: { text: string }) {
     setSubmitting(true);
     setError(null);
     try {
-      const response = await fetch("/api/preview/consent", { method: "POST" });
+      const response = await fetch(withCompany("/api/preview/consent"), { method: "POST" });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
         setError(payload.error ?? "We couldn't record your consent. Please try again.");
         return;
       }
-      router.replace("/products");
+      router.replace(withCompany("/products"));
       router.refresh();
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");

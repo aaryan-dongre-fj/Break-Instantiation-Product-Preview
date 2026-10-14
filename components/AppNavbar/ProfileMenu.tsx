@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { IoIosArrowDown } from "react-icons/io";
 import { useLook } from "@/components/LookProvider";
 import { Button } from "@/components/ui/button";
+import { useCompanyHref } from "@/components/CompanyProvider";
 
 /**
  * The signed-in email lives in a cookie on this origin and is handed down
@@ -16,6 +17,7 @@ export default function ProfileMenu() {
   const email = useContext(StaffEmailContext);
   const look = useLook();
   const router = useRouter();
+  const companyHref = useCompanyHref();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -23,8 +25,8 @@ export default function ProfileMenu() {
 
   const signOut = async () => {
     setIsSigningOut(true);
-    await fetch("/api/preview/logout", { method: "POST" });
-    router.replace("/login");
+    await fetch(companyHref("/api/preview/logout"), { method: "POST" });
+    router.replace(companyHref("/login"));
     router.refresh();
   };
 
@@ -57,7 +59,7 @@ export default function ProfileMenu() {
         <div className="absolute right-0 mt-2 w-[min(300px,calc(100vw-3rem))] rounded-md shadow-lg bg-primary-background ring-1 ring-black ring-opacity-5 border border-primary-text/10">
           <div className="py-1">
             <Link
-              href="/products"
+              href={companyHref("/products")}
               className="cursor-pointer block w-full px-4 py-2 text-sm text-primary-text hover:bg-secondary-background/20 text-left border-b border-primary-text/10"
               onClick={() => setIsDropdownOpen(false)}
             >
