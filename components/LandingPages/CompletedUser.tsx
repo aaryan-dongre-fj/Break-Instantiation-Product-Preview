@@ -23,6 +23,7 @@ import {
   refreshMuxUrls,
   writePreviewResultCache,
 } from "@/utils/previewResultCache";
+import { withCompany } from "@/utils/company";
 
 type ReportPageData = PreviewReportPage;
 
@@ -139,7 +140,7 @@ export default function CompletedUser({
       if (cancelledRef.current) return;
 
       if (scored.status === 401) {
-        router.replace("/login");
+        router.replace(withCompany("/login"));
         return;
       }
 

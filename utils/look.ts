@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { headers } from "next/headers";
 
+import { companyPath } from "@/utils/company";
 import { apiBaseUrl, instance } from "@/utils/instance";
 
 export type Look = {
@@ -33,43 +34,31 @@ export function fallbackLook(): Look {
   };
 }
 
-export function companyApiOrigin(host: string | null): string | null {
-  const hostname = (host ?? "").split(":")[0];
-  if (!hostname.endsWith(".localhost")) return null;
-  const base = new URL(apiBaseUrl());
-  base.hostname = hostname;
-  return base.origin;
-}
-
-// One API host can serve every company: this site names its company by its
-// own host, which the backend stores as one of that company's addresses.
-// The key proves the call comes from our server. Bare localhost is the
-// public admin, so it never names a company.
-export function companyHeaders(host: string | null): Record<string, string> {
-  const hostname = (host ?? "").split(":")[0].toLowerCase();
-  const key = process.env.COMPANY_HOST_SECRET;
-  if (!key || !hostname || hostname === "localhost" || hostname === "127.0.0.1") {
-    return {};
-  }
-  return { "x-company-host": hostname, "x-company-key": key };
-}
-
-/** `companyHeaders` for the browser host of the request being served. */
-export async function requestCompanyHeaders(): Promise<Record<string, string>> {
+/** The company of the request being served. middleware.ts sets the header. */
+export async function requestCompany(): Promise<string | null> {
   try {
-    return companyHeaders((await headers()).get("host"));
+    return (await headers()).get("x-company");
   } catch {
-    return {};
+    return null;
   }
+}
+
+/** The API for this request's company: API_BASE_URL/t/<company>. */
+export async function requestApiBase(): Promise<string> {
+  const company = await requestCompany();
+  return company ? `${apiBaseUrl()}/t/${company}` : apiBaseUrl();
+}
+
+/** A portal path inside this request's company, for server redirects. */
+export async function requestCompanyPath(path: string): Promise<string> {
+  return companyPath(await requestCompany(), path);
 }
 
 export const loadLook = cache(async (): Promise<Look> => {
-  const host = (await headers()).get("host");
-  const origin = companyApiOrigin(host) ?? apiBaseUrl();
+  if (!(await requestCompany())) return fallbackLook();
   try {
-    const response = await fetch(`${origin}/api/look/`, {
+    const response = await fetch(`${await requestApiBase()}/api/look/`, {
       cache: "no-store",
-      headers: companyHeaders(host),
     });
     if (!response.ok) return fallbackLook();
     return normalizeLook(await response.json());

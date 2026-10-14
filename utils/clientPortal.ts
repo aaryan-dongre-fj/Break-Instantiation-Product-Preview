@@ -1,8 +1,7 @@
-import { headers } from "next/headers";
 
 import type { StaffSession } from "./flowTool";
-import { apiBaseUrl, portalOriginFor } from "./instance";
-import { companyApiOrigin, requestCompanyHeaders } from "./look";
+import { portalOrigin } from "./instance";
+import { requestApiBase } from "./look";
 
 export type PortalResult<T> =
   | { ok: true; status: number; data: T }
@@ -49,31 +48,12 @@ function errorDetail(payload: unknown, fallback: string) {
   return fallback;
 }
 
-async function apiBase() {
-  try {
-    const host = (await headers()).get("host");
-    return companyApiOrigin(host) ?? apiBaseUrl();
-  } catch {
-    return apiBaseUrl();
-  }
-}
-
-async function portalOrigin() {
-  try {
-    const host = (await headers()).get("host");
-    return portalOriginFor(host);
-  } catch {
-    return portalOriginFor(null);
-  }
-}
-
 async function postJson(path: string, body: unknown, cookie?: string, csrf?: string) {
-  const base = await apiBase();
-  const origin = await portalOrigin();
+  const base = await requestApiBase();
+  const origin = portalOrigin();
   return fetch(`${base}${path}`, {
     method: "POST",
     headers: {
-      ...(await requestCompanyHeaders()),
       "Content-Type": "application/json",
       Accept: "application/json",
       Origin: origin,
@@ -174,14 +154,13 @@ async function authed(
   staff: StaffSession,
   method: "GET" | "POST" = "GET",
 ): Promise<PortalResult<unknown>> {
-  const base = await apiBase();
-  const origin = await portalOrigin();
+  const base = await requestApiBase();
+  const origin = portalOrigin();
   let response: Response;
   try {
     response = await fetch(`${base}${path}`, {
       method,
       headers: {
-        ...(await requestCompanyHeaders()),
         Accept: "application/json",
         "Content-Type": "application/json",
         Origin: origin,

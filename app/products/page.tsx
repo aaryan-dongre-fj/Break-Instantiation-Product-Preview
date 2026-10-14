@@ -7,6 +7,7 @@ import { getProducts } from "@/utils/flowTool";
 import { loadLook } from "@/utils/look";
 import { redirectIfConsentMissing } from "@/utils/requireConsent";
 import { getStaffEmail, getStaffSession } from "@/utils/staffSession";
+import { requestCompanyPath } from "@/utils/look";
 
 export async function generateMetadata(): Promise<Metadata> {
   const look = await loadLook();
@@ -18,13 +19,13 @@ export const dynamic = "force-dynamic";
 export default async function ProductsPage() {
   const look = await loadLook();
   const staff = await getStaffSession();
-  if (!staff) redirect("/login");
+  if (!staff) redirect(await requestCompanyPath("/login"));
   await redirectIfConsentMissing();
 
   const email = await getStaffEmail();
   const result = await getProducts(staff);
 
-  if (!result.ok && result.status === 401) redirect("/login");
+  if (!result.ok && result.status === 401) redirect(await requestCompanyPath("/login"));
 
   return (
     <div className="dossier-ambient min-h-screen bg-primary-background pt-[72px] text-primary-text">

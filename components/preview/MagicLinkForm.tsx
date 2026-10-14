@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Loader2, MailCheck } from "lucide-react";
+import { withCompany } from "@/utils/company";
 
 export default function MagicLinkForm() {
   const [email, setEmail] = useState("");
@@ -17,7 +18,7 @@ export default function MagicLinkForm() {
     setError(null);
 
     try {
-      const response = await fetch("/api/preview/magic-login/request", {
+      const response = await fetch(withCompany("/api/preview/magic-login/request"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),

@@ -8,32 +8,11 @@
  * See FLOW_TOOL_PREVIEW_API.md.
  */
 
-import { headers } from "next/headers";
-
-import { apiBaseUrl, portalOriginFor } from "./instance";
-import { companyApiOrigin, requestCompanyHeaders } from "./look";
+import { apiBaseUrl, portalOrigin } from "./instance";
+import { requestApiBase } from "./look";
 
 export function staffApiBase() {
   return apiBaseUrl();
-}
-
-/** Company hosts (`ej.localhost`) talk to that child's API. Other hosts use `API_BASE_URL`. */
-async function requestApiBase() {
-  try {
-    const host = (await headers()).get("host");
-    return companyApiOrigin(host) ?? apiBaseUrl();
-  } catch {
-    return apiBaseUrl();
-  }
-}
-
-async function requestPortalOrigin() {
-  try {
-    const host = (await headers()).get("host");
-    return portalOriginFor(host);
-  } catch {
-    return portalOriginFor(null);
-  }
 }
 
 const FLOW_TOOL_PREFIX = "/api/staff/flow-tool";
@@ -173,13 +152,12 @@ export async function staffLogin(
   password: string,
 ): Promise<UpstreamResult<StaffSession>> {
   const base = await requestApiBase();
-  const origin = await requestPortalOrigin();
+  const origin = portalOrigin();
   let response: Response;
   try {
     response = await fetch(`${base}/api/staff/auth/login/`, {
       method: "POST",
       headers: {
-        ...(await requestCompanyHeaders()),
         "Content-Type": "application/json",
         Accept: "application/json",
         Origin: origin,
@@ -262,14 +240,13 @@ async function staffRequest<T>(
 ): Promise<UpstreamResult<T>> {
   const method = init.method ?? "GET";
   const base = await requestApiBase();
-  const origin = await requestPortalOrigin();
+  const origin = portalOrigin();
 
   let response: Response;
   try {
     response = await fetch(`${base}${FLOW_TOOL_PREFIX}/${path}`, {
       method,
       headers: {
-        ...(await requestCompanyHeaders()),
         "Content-Type": "application/json",
         Accept: "application/json",
         // POSTs need this. GETs ignore it. Same cookies as preview/.
