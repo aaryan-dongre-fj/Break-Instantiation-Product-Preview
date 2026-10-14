@@ -44,6 +44,16 @@ npm run dev
 
 GitHub Actions can do the same via **Create customer portal instance**. The workflow takes the name, port, and API origin and uploads a zip. Run `npm install` in the unzipped folder before starting it.
 
+## Vercel
+
+The production build is `npm run build` (`next build`). Node 22 is required. In the Vercel project, set:
+
+- `API_BASE_URL` to the public generic API
+- `APP_URL` to this deployment's origin (the backend must list it in `CSRF_TRUSTED_ORIGINS`)
+- `CLIENT_API_BASE` to the scoring API, or the same origin as `API_BASE_URL`
+
+`instance.config.json` still supplies the fallback name, logo, and local API address. A host that is not `*.localhost` uses that name and logo.
+
 ## This checkout
 
 ```bash

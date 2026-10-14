@@ -33,3 +33,37 @@ export const instance: InstanceConfig = {
   appUrl: text(raw.appUrl, `http://localhost:${devPort}`).replace(/\/$/, ""),
   apiBaseUrl: text(raw.apiBaseUrl, "http://127.0.0.1:8000").replace(/\/$/, ""),
 };
+
+function trimUrl(value: string) {
+  return value.replace(/\/+$/, "");
+}
+
+/** Generic API. `API_BASE_URL` wins, then the older `STAFF_API_BASE` name. */
+export function apiBaseUrl() {
+  return trimUrl(
+    process.env.API_BASE_URL || process.env.STAFF_API_BASE || instance.apiBaseUrl,
+  );
+}
+
+/** This app. Sent as the Origin on API calls. */
+export function appUrl() {
+  return trimUrl(process.env.APP_URL || instance.appUrl);
+}
+
+/** Scoring host. Falls back to the generic API when it is the same service. */
+export function clientApiBase() {
+  return trimUrl(process.env.CLIENT_API_BASE || apiBaseUrl());
+}
+
+/**
+ * Company localhost sites keep `APP_URL`'s port on their own hostname.
+ * Every other host uses `APP_URL` as written.
+ */
+export function portalOriginFor(host: string | null) {
+  const app = appUrl();
+  const hostname = (host ?? "").split(":")[0];
+  if (!hostname.endsWith(".localhost")) return app;
+  const url = new URL(app);
+  url.hostname = hostname;
+  return url.origin;
+}

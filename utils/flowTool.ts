@@ -10,20 +10,29 @@
 
 import { headers } from "next/headers";
 
-import { instance } from "./instance";
+import { apiBaseUrl, portalOriginFor } from "./instance";
 import { companyApiOrigin } from "./look";
 
-export const STAFF_API_BASE = (
-  process.env.STAFF_API_BASE ?? instance.apiBaseUrl
-).replace(/\/+$/, "");
+export function staffApiBase() {
+  return apiBaseUrl();
+}
 
-/** Company hosts (`ej.localhost`) talk to that child's API. `localhost` stays on the public base. */
+/** Company hosts (`ej.localhost`) talk to that child's API. Other hosts use `API_BASE_URL`. */
 async function requestApiBase() {
   try {
     const host = (await headers()).get("host");
-    return companyApiOrigin(host) ?? STAFF_API_BASE;
+    return companyApiOrigin(host) ?? apiBaseUrl();
   } catch {
-    return STAFF_API_BASE;
+    return apiBaseUrl();
+  }
+}
+
+async function requestPortalOrigin() {
+  try {
+    const host = (await headers()).get("host");
+    return portalOriginFor(host);
+  } catch {
+    return portalOriginFor(null);
   }
 }
 
@@ -164,6 +173,7 @@ export async function staffLogin(
   password: string,
 ): Promise<UpstreamResult<StaffSession>> {
   const base = await requestApiBase();
+  const origin = await requestPortalOrigin();
   let response: Response;
   try {
     response = await fetch(`${base}/api/staff/auth/login/`, {
@@ -171,8 +181,8 @@ export async function staffLogin(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Origin: base,
-        Referer: `${base}/`,
+        Origin: origin,
+        Referer: `${origin}/`,
       },
       body: JSON.stringify({ email, password }),
       cache: "no-store",
@@ -251,6 +261,7 @@ async function staffRequest<T>(
 ): Promise<UpstreamResult<T>> {
   const method = init.method ?? "GET";
   const base = await requestApiBase();
+  const origin = await requestPortalOrigin();
 
   let response: Response;
   try {
@@ -262,10 +273,8 @@ async function staffRequest<T>(
         // POSTs need this. GETs ignore it. Same cookies as preview/.
         "X-CSRFToken": staff.csrf,
         Cookie: `${UPSTREAM_SESSION_COOKIE}=${staff.session}; ${UPSTREAM_CSRF_COOKIE}=${staff.csrf}`,
-        // Server-to-server, so we present the API's own origin and skip the
-        // CSRF_TRUSTED_ORIGINS entry this app doesn't have yet.
-        Origin: base,
-        Referer: `${base}/`,
+        Origin: origin,
+        Referer: `${origin}/`,
         ...init.headers,
       },
       body: init.body === undefined ? undefined : JSON.stringify(init.body),

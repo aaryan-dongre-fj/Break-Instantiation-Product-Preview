@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Type errors fail the build. Lint stays off this step: the report
+  // components still have existing lint errors, and turning it on would
+  // fail a Vercel deploy without changing runtime behavior.
+  typescript: {
+    ignoreBuildErrors: false,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

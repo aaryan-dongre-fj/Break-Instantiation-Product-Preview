@@ -9,11 +9,7 @@ const nextBin = require.resolve("next/dist/bin/next");
 
 const child = spawn(process.execPath, [nextBin, "start", "-p", String(instance.devPort)], {
   stdio: "inherit",
-  env: {
-    ...process.env,
-    STAFF_API_BASE: process.env.STAFF_API_BASE || instance.apiBaseUrl,
-    CLIENT_API_BASE: process.env.CLIENT_API_BASE || instance.apiBaseUrl,
-  },
+  env: process.env,
 });
 
 child.on("exit", (code) => process.exit(code ?? 0));

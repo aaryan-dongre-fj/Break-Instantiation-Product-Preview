@@ -7,11 +7,7 @@
  * results page reads generate-report / report / timeline / mux from this host.
  */
 
-import { instance } from "./instance";
-
-export const CLIENT_API_BASE = (
-  process.env.CLIENT_API_BASE ?? instance.apiBaseUrl
-).replace(/\/+$/, "");
+import { clientApiBase } from "./instance";
 
 /**
  * Community path Break's own signup uses (`defaultDynamicUrl` in
@@ -102,7 +98,7 @@ async function clientFetch(
   const accept = init.acceptStatuses ?? [200];
   let response: Response;
   try {
-    response = await fetch(`${CLIENT_API_BASE}${path}`, {
+    response = await fetch(`${clientApiBase()}${path}`, {
       method: init.method ?? "GET",
       headers: {
         "Content-Type": "application/json",
@@ -116,7 +112,7 @@ async function clientFetch(
     return {
       ok: false,
       status: 503,
-      error: `Couldn't reach ${CLIENT_API_BASE}. Check CLIENT_API_BASE and the network.`,
+      error: `Couldn't reach ${clientApiBase()}. Check CLIENT_API_BASE and the network.`,
     };
   }
 

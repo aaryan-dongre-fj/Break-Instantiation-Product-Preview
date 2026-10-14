@@ -1,7 +1,7 @@
 import {
   getProducts,
   getVersions,
-  STAFF_API_BASE,
+  staffApiBase,
   type FlowToolProduct,
   type FlowToolVersionRef,
   type StaffSession,
@@ -144,7 +144,7 @@ export function lineageForVersion(
  * forwards to break's admin/ml-preview endpoints.
  */
 export function scoreEntryUrl(versionId: string): string {
-  return `${STAFF_API_BASE}/api/staff/flow-tool/versions/${encodeURIComponent(versionId)}/preview/result/generate-report/`;
+  return `${staffApiBase()}/api/staff/flow-tool/versions/${encodeURIComponent(versionId)}/preview/result/generate-report/`;
 }
 
 export async function resolveProductLine(

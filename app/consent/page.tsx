@@ -37,7 +37,7 @@ export default async function ConsentPage() {
           <ConsentForm text={template.data.text} />
         ) : (
           <div className="dossier-card mx-auto w-full max-w-xl rounded-card p-7">
-            <h1 className="text-2xl font-bold tracking-tight">Consent isn't available</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Consent is unavailable</h1>
             <p className="mt-3 text-base font-medium leading-relaxed text-[var(--ej-text-soft)]">
               {error}
             </p>

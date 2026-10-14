@@ -12,11 +12,7 @@ const child = spawn(
   [nextBin, "dev", "--turbopack", "-p", String(instance.devPort)],
   {
     stdio: "inherit",
-    env: {
-      ...process.env,
-      STAFF_API_BASE: process.env.STAFF_API_BASE || instance.apiBaseUrl,
-      CLIENT_API_BASE: process.env.CLIENT_API_BASE || instance.apiBaseUrl,
-    },
+    env: process.env,
   },
 );
 

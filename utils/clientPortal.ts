@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 
 import type { StaffSession } from "./flowTool";
-import { STAFF_API_BASE } from "./flowTool";
+import { apiBaseUrl, portalOriginFor } from "./instance";
 import { companyApiOrigin } from "./look";
 
 export type PortalResult<T> =
@@ -52,21 +52,31 @@ function errorDetail(payload: unknown, fallback: string) {
 async function apiBase() {
   try {
     const host = (await headers()).get("host");
-    return companyApiOrigin(host) ?? STAFF_API_BASE;
+    return companyApiOrigin(host) ?? apiBaseUrl();
   } catch {
-    return STAFF_API_BASE;
+    return apiBaseUrl();
+  }
+}
+
+async function portalOrigin() {
+  try {
+    const host = (await headers()).get("host");
+    return portalOriginFor(host);
+  } catch {
+    return portalOriginFor(null);
   }
 }
 
 async function postJson(path: string, body: unknown, cookie?: string, csrf?: string) {
   const base = await apiBase();
+  const origin = await portalOrigin();
   return fetch(`${base}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      Origin: base,
-      Referer: `${base}/`,
+      Origin: origin,
+      Referer: `${origin}/`,
       ...(cookie ? { Cookie: cookie } : {}),
       ...(csrf ? { "X-CSRFToken": csrf } : {}),
     },
@@ -164,6 +174,7 @@ async function authed(
   method: "GET" | "POST" = "GET",
 ): Promise<PortalResult<unknown>> {
   const base = await apiBase();
+  const origin = await portalOrigin();
   let response: Response;
   try {
     response = await fetch(`${base}${path}`, {
@@ -171,8 +182,8 @@ async function authed(
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Origin: base,
-        Referer: `${base}/`,
+        Origin: origin,
+        Referer: `${origin}/`,
         Cookie: `client_session=${staff.session}; csrftoken=${staff.csrf}`,
         "X-CSRFToken": staff.csrf,
       },
