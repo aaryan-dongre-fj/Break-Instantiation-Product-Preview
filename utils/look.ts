@@ -1,7 +1,6 @@
 import { cache } from "react";
 import { headers } from "next/headers";
 
-import { companyPath } from "@/utils/company";
 import { apiBaseUrl, instance } from "@/utils/instance";
 
 export type Look = {
@@ -34,32 +33,20 @@ export function fallbackLook(): Look {
   };
 }
 
-/** The company of the request being served. middleware.ts sets the header. */
-export async function requestCompany(): Promise<string | null> {
-  try {
-    return (await headers()).get("x-company");
-  } catch {
-    return null;
-  }
-}
-
-/** The API for this request's company: API_BASE_URL/t/<company>. */
-export async function requestApiBase(): Promise<string> {
-  const company = await requestCompany();
-  return company ? `${apiBaseUrl()}/t/${company}` : apiBaseUrl();
-}
-
-/** A portal path inside this request's company, for server redirects. */
-export async function requestCompanyPath(path: string): Promise<string> {
-  return companyPath(await requestCompany(), path);
+export function companyApiOrigin(host: string | null): string | null {
+  const hostname = (host ?? "").split(":")[0];
+  if (!hostname.endsWith(".localhost")) return null;
+  const base = new URL(apiBaseUrl());
+  base.hostname = hostname;
+  return base.origin;
 }
 
 export const loadLook = cache(async (): Promise<Look> => {
-  if (!(await requestCompany())) return fallbackLook();
+  const host = (await headers()).get("host");
+  const origin = companyApiOrigin(host);
+  if (!origin) return fallbackLook();
   try {
-    const response = await fetch(`${await requestApiBase()}/api/look/`, {
-      cache: "no-store",
-    });
+    const response = await fetch(`${origin}/api/look/`, { cache: "no-store" });
     if (!response.ok) return fallbackLook();
     return normalizeLook(await response.json());
   } catch {

@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Clock } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
 import ReportNavbar from "../AppNavbar/ReportNavbar";
-import { withCompany } from "@/utils/company";
 
 export default function VerificationState() {
   const [phone, setPhone] = useState<string | undefined>(undefined);
@@ -19,7 +18,7 @@ export default function VerificationState() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(withCompany("/api/verificationSmsOptIn"), {
+      const response = await fetch("/api/verificationSmsOptIn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: phone.trim() }),

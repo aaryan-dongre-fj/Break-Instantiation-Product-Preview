@@ -56,9 +56,14 @@ export function clientApiBase() {
 }
 
 /**
- * The Origin sent on API calls. One host serves every company under its
- * own path, so this is `APP_URL` as written.
+ * Company localhost sites keep `APP_URL`'s port on their own hostname.
+ * Every other host uses `APP_URL` as written.
  */
-export function portalOrigin() {
-  return appUrl();
+export function portalOriginFor(host: string | null) {
+  const app = appUrl();
+  const hostname = (host ?? "").split(":")[0];
+  if (!hostname.endsWith(".localhost")) return app;
+  const url = new URL(app);
+  url.hostname = hostname;
+  return url.origin;
 }

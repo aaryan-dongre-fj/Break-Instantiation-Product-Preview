@@ -5,7 +5,6 @@ import PreviewNavbar from "@/components/preview/PreviewNavbar";
 import { getConsentState, getConsentTemplate } from "@/utils/clientPortal";
 import { loadLook } from "@/utils/look";
 import { getStaffEmail, getStaffSession } from "@/utils/staffSession";
-import { requestCompanyPath } from "@/utils/look";
 
 export async function generateMetadata(): Promise<Metadata> {
   const look = await loadLook();
@@ -16,10 +15,10 @@ export const dynamic = "force-dynamic";
 
 export default async function ConsentPage() {
   const staff = await getStaffSession();
-  if (!staff) redirect(await requestCompanyPath("/login"));
+  if (!staff) redirect("/login");
 
   const existing = await getConsentState(staff);
-  if (existing.state === "granted") redirect(await requestCompanyPath("/products"));
+  if (existing.state === "granted") redirect("/products");
 
   const email = await getStaffEmail();
   const template = existing.state === "error" ? null : await getConsentTemplate(staff);
