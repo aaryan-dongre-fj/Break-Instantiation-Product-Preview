@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import BrandMark from "@/components/BrandMark";
-import { useCompanyHref } from "@/components/CompanyProvider";
 import { motion } from "framer-motion";
 
 export default function NotFound() {
   const router = useRouter();
-  const companyHref = useCompanyHref();
 
   return (
     <div className="min-h-screen w-full bg-primary-background text-primary-text relative">
@@ -20,7 +18,7 @@ export default function NotFound() {
         transition={{ duration: 0.8 }}
         className="absolute top-0 left-0 right-0 lg:right-auto z-10 flex justify-center lg:justify-start p-4 lg:p-8"
       >
-        <Link href={companyHref("/")} className="flex items-center">
+        <Link href="/" className="flex items-center">
           <BrandMark />
         </Link>
       </motion.div>
@@ -52,7 +50,7 @@ export default function NotFound() {
             className="pt-4"
           >
             <Button
-              onClick={() => router.push(companyHref("/"))}
+              onClick={() => router.push("/")}
               className="bg-primary-text text-primary-background hover:bg-primary-text/90 hover:cursor-pointer font-medium text-base px-8 py-6 rounded-[50px] transition-colors"
             >
               Return to Home

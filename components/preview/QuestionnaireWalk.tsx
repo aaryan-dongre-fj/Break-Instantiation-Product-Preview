@@ -29,7 +29,6 @@ import {
   writeWalkProgress,
   type WalkProgress,
 } from "@/utils/walkProgress";
-import { useCompanyHref } from "@/components/CompanyProvider";
 
 const ORDINAL_WORDS = [
   "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
@@ -111,7 +110,6 @@ export default function QuestionnaireWalk({
 }) {
   void productCode;
   const router = useRouter();
-  const companyHref = useCompanyHref();
 
   const [state, setState] = useState<PreviewState | null>(null);
   const [answers, setAnswers] = useState<PreviewAnswer[]>([]);
@@ -179,7 +177,7 @@ export default function QuestionnaireWalk({
           Array.from(clientRecords.current.values())
         );
         if (scored.status === 401) {
-          router.replace(companyHref("/login"));
+          router.replace("/login");
           return;
         }
         if (!scored.ok) {
@@ -199,10 +197,10 @@ export default function QuestionnaireWalk({
 
       setAnswers(nextAnswers);
       router.push(
-        companyHref(`/preview/${productSlug}/results?answered=${answered}&total=${total}`)
+        `/preview/${productSlug}/results?answered=${answered}&total=${total}`
       );
     },
-    [companyHref, productSlug, router, versionId]
+    [productSlug, router, versionId]
   );
 
   /**
@@ -215,14 +213,14 @@ export default function QuestionnaireWalk({
       setError(null);
 
       try {
-        const response = await fetch(companyHref(`/api/preview/versions/${versionId}`), {
+        const response = await fetch(`/api/preview/versions/${versionId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ answers: nextAnswers }),
         });
 
         if (response.status === 401) {
-          router.replace(companyHref("/login"));
+          router.replace("/login");
           return;
         }
 
@@ -315,7 +313,7 @@ export default function QuestionnaireWalk({
         setIsLoading(false);
       }
     },
-    [companyHref, productSlug, rememberProgress, scoreAndOpenResults, router, versionId]
+    [productSlug, rememberProgress, scoreAndOpenResults, router, versionId]
   );
 
   useEffect(() => {
@@ -466,7 +464,7 @@ export default function QuestionnaireWalk({
                 START OVER
               </Button>
               <Link
-                href={companyHref("/products")}
+                href="/products"
                 className="inline-flex h-12 items-center rounded-[50px] border border-primary-text/15 px-6 text-base font-medium text-primary-text transition-colors hover:bg-primary-text/5"
               >
                 Back to products

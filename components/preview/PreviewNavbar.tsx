@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import BrandMark from "@/components/BrandMark";
-import { useCompanyHref } from "@/components/CompanyProvider";
 
 export default function PreviewNavbar({
   email,
@@ -15,13 +14,12 @@ export default function PreviewNavbar({
   context?: string;
 }) {
   const router = useRouter();
-  const companyHref = useCompanyHref();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const signOut = async () => {
     setIsSigningOut(true);
-    await fetch(companyHref("/api/preview/logout"), { method: "POST" });
-    router.replace(companyHref("/login"));
+    await fetch("/api/preview/logout", { method: "POST" });
+    router.replace("/login");
     router.refresh();
   };
 
@@ -29,7 +27,7 @@ export default function PreviewNavbar({
     <nav className="absolute top-0 left-0 right-0 z-50 h-[72px] border-b border-[var(--ej-border)] bg-primary-background/95">
       <div className="flex h-full items-center justify-between gap-4 px-6 lg:px-12">
         <div className="flex min-w-0 items-center gap-4">
-          <Link href={companyHref("/products")} className="shrink-0">
+          <Link href="/products" className="shrink-0">
             <BrandMark />
           </Link>
           {context ? (

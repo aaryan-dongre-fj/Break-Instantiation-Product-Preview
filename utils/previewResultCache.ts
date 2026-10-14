@@ -1,5 +1,4 @@
 import type { PreviewAnswer, PreviewResultBundle } from "@/utils/flowTool";
-import { withCompany } from "@/utils/company";
 
 const keyFor = (versionId: string) => `bvi-preview-result:${versionId}`;
 
@@ -108,7 +107,7 @@ async function loadPreviewBundleOnce(
   let response: Response;
   try {
     response = await fetch(
-      withCompany(`/api/preview/versions/${encodeURIComponent(versionId)}/result`),
+      `/api/preview/versions/${encodeURIComponent(versionId)}/result`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -154,7 +153,7 @@ export async function refreshMuxUrls(
 ): Promise<Record<string, { playback_url: string; thumbnail_gif_url: string }> | null> {
   if (playbackIds.length === 0) return null;
   const response = await fetch(
-    withCompany(`/api/preview/versions/${encodeURIComponent(versionId)}/result/mux-signed-urls`),
+    `/api/preview/versions/${encodeURIComponent(versionId)}/result/mux-signed-urls`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -7,7 +7,6 @@ import { ArrowRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import type { FlowToolProduct } from "@/utils/flowTool";
 import { slugForProduct } from "@/utils/productSlug";
-import { useCompanyHref } from "@/components/CompanyProvider";
 
 export default function ProductPicker({
   products,
@@ -78,7 +77,6 @@ function ProductCard({
   slug: string;
 }) {
   const published = Boolean(product.active_version_id);
-  const companyHref = useCompanyHref();
 
   const body = (
     <>
@@ -128,7 +126,7 @@ function ProductCard({
 
   return (
     <Link
-      href={companyHref(`/preview/${slug}`)}
+      href={`/preview/${slug}`}
       className="group dossier-card block h-full rounded-card p-6 transition-colors hover:border-[var(--ej-border-active)]"
     >
       {body}

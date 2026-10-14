@@ -4,7 +4,6 @@ import ReportExperience from "@/components/preview/ReportExperience";
 import { loadPreviewProduct } from "@/utils/loadPreviewProduct";
 import { instance } from "@/utils/instance";
 import { redirectIfConsentMissing } from "@/utils/requireConsent";
-import { requestCompanyPath } from "@/utils/look";
 
 export const metadata = {
   title: `Results · ${instance.productName}`,
@@ -39,7 +38,7 @@ export default async function ResultsPage({
   await redirectIfConsentMissing();
   const loaded = await loadPreviewProduct(slug, resultsSuffix(search));
 
-  if (!loaded.ok) redirect(await requestCompanyPath("/products"));
+  if (!loaded.ok) redirect("/products");
 
   return (
     <ReportExperience email={loaded.email} versionId={loaded.versionId} />
